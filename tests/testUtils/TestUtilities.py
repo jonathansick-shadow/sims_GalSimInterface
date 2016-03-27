@@ -6,7 +6,7 @@ from lsst.sims.utils import radiansFromArcsec, icrsFromObserved
 __all__ = ["create_text_catalog"]
 
 
-def create_text_catalog(obs, file_name, raDisplacement, decDisplacement, \
+def create_text_catalog(obs, file_name, raDisplacement, decDisplacement,
                         hlr=None, mag_norm=None, pa=None):
     """
     Create a text file containing objects that can be read in by a fileDBObject class.
@@ -45,12 +45,11 @@ def create_text_catalog(obs, file_name, raDisplacement, decDisplacement, \
     if pa is None:
         pa = [0.0]*len(raDisplacement)
 
-
-    with open(file_name,'w') as outFile:
+    with open(file_name, 'w') as outFile:
         outFile.write('# test_id ra dec hlr mag_norm pa\n')
 
         for ix, (dx, dy, halfLight, magNorm, pp) in \
-        enumerate(zip(raDisplacementList, decDisplacementList, hlr, mag_norm, pa)):
+                enumerate(zip(raDisplacementList, decDisplacementList, hlr, mag_norm, pa)):
 
             rr = numpy.degrees(obs._pointingRA+dx)
             dd = numpy.degrees(obs._pointingDec+dy)

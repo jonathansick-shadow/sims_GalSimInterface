@@ -3,6 +3,7 @@ from lsst.sims.utils import arcsecFromRadians
 
 __all__ = ["GalSimCelestialObject"]
 
+
 class GalSimCelestialObject(object):
     """
     This is a class meant to carry around all of the data required by
@@ -62,16 +63,14 @@ class GalSimCelestialObject(object):
         self._sindex = sindex
         self._fluxDict = fluxDict
 
-
     @property
     def galSimType(self):
         return self._galSimType
 
     @galSimType.setter
     def galSimType(self, value):
-        raise RuntimeError("You should not be setting galSimType on the fly; " \
+        raise RuntimeError("You should not be setting galSimType on the fly; "
                            + "just instantiate a new GalSimCelestialObject")
-
 
     @property
     def sed(self):
@@ -79,9 +78,8 @@ class GalSimCelestialObject(object):
 
     @sed.setter
     def sed(self, value):
-        raise RuntimeError("You should not be setting sed on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting sed on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     @property
     def raRadians(self):
@@ -89,9 +87,8 @@ class GalSimCelestialObject(object):
 
     @raRadians.setter
     def raRadians(self, value):
-        raise RuntimeError("You should not be setting raRadians on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting raRadians on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     @property
     def decRadians(self):
@@ -99,9 +96,8 @@ class GalSimCelestialObject(object):
 
     @decRadians.setter
     def decRadians(self, value):
-        raise RuntimeError("You should not be setting decRadians on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting decRadians on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     @property
     def xPupilRadians(self):
@@ -109,9 +105,8 @@ class GalSimCelestialObject(object):
 
     @xPupilRadians.setter
     def xPupilRadians(self, value):
-        raise RuntimeError("You should not be setting xPupilRadians on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting xPupilRadians on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     @property
     def xPupilArcsec(self):
@@ -119,9 +114,8 @@ class GalSimCelestialObject(object):
 
     @xPupilArcsec.setter
     def xPupilArcsec(self, value):
-        raise RuntimeError("You should not be setting xPupilArcsec on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting xPupilArcsec on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     @property
     def yPupilRadians(self):
@@ -129,9 +123,8 @@ class GalSimCelestialObject(object):
 
     @yPupilRadians.setter
     def yPupilRadians(self, value):
-        raise RuntimeError("You should not be setting yPupilRadians on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting yPupilRadians on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     @property
     def yPupilArcsec(self):
@@ -139,9 +132,8 @@ class GalSimCelestialObject(object):
 
     @yPupilArcsec.setter
     def yPupilArcsec(self, value):
-        raise RuntimeError("You should not be setting yPupilArcsec on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting yPupilArcsec on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     @property
     def halfLightRadiusRadians(self):
@@ -149,9 +141,8 @@ class GalSimCelestialObject(object):
 
     @halfLightRadiusRadians.setter
     def halfLightRadiusRadians(self, value):
-        raise RuntimeError("You should not be setting halfLightRadiusRadians on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting halfLightRadiusRadians on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     @property
     def halfLightRadiusArcsec(self):
@@ -159,9 +150,8 @@ class GalSimCelestialObject(object):
 
     @halfLightRadiusArcsec.setter
     def halfLightRadiusArcsec(self, value):
-        raise RuntimeError("You should not be setting halfLightRadiusArcsec on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting halfLightRadiusArcsec on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     @property
     def minorAxisRadians(self):
@@ -169,9 +159,8 @@ class GalSimCelestialObject(object):
 
     @minorAxisRadians.setter
     def minorAxisRadians(self, value):
-        raise RuntimeError("You should not be setting minorAxisRadians on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting minorAxisRadians on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     @property
     def majorAxisRadians(self):
@@ -179,9 +168,8 @@ class GalSimCelestialObject(object):
 
     @majorAxisRadians.setter
     def majorAxisRadians(self, value):
-        raise RuntimeError("You should not be setting majorAxisRadians on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting majorAxisRadians on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     @property
     def positionAngleRadians(self):
@@ -189,9 +177,8 @@ class GalSimCelestialObject(object):
 
     @positionAngleRadians.setter
     def positionAngleRadians(self, value):
-        raise RuntimeError("You should not be setting positionAngleRadians on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting positionAngleRadians on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     @property
     def sindex(self):
@@ -199,9 +186,8 @@ class GalSimCelestialObject(object):
 
     @sindex.setter
     def sindex(self, value):
-        raise RuntimeError("You should not be setting sindex on the fly; " \
-        + "just instantiate a new GalSimCelestialObject")
-
+        raise RuntimeError("You should not be setting sindex on the fly; "
+                           + "just instantiate a new GalSimCelestialObject")
 
     def flux(self, band):
         """

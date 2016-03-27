@@ -8,25 +8,25 @@ import galsim
 from lsst.sims.catalogs.generation.db import CatalogDBObject
 from lsst.sims.utils import ObservationMetaData
 from lsst.sims.catUtils.baseCatalogModels import StarObj, GalaxyBulgeObj, GalaxyDiskObj, GalaxyAgnObj, \
-                                                 OpSim3_61DBObject
+    OpSim3_61DBObject
 from lsst.sims.GalSimInterface import SNRdocumentPSF, GalSimStars, GalSimGalaxies, \
-                                               GalSimAgn
+    GalSimAgn
 
-#if you want to use the actual LSST camera
+# if you want to use the actual LSST camera
 #from lsst.obs.lsstSim import LsstSimMapper
 
-class testGalSimStars(GalSimStars):
-    #only draw images in the u and g band for speed
-    bandpassNames = ['u','g']
 
-    #convolve with a PSF; note that galaxies are not convolved with a PSF
-    #PSF defined in galSimInterface/galSimUtilities.py
+class testGalSimStars(GalSimStars):
+    # only draw images in the u and g band for speed
+    bandpassNames = ['u', 'g']
+
+    # convolve with a PSF; note that galaxies are not convolved with a PSF
+    # PSF defined in galSimInterface/galSimUtilities.py
     PSF = SNRdocumentPSF()
 
-    #If you want to use the LSST camera, uncomment the line below.
-    #You can similarly assign any camera object you want here
+    # If you want to use the LSST camera, uncomment the line below.
+    # You can similarly assign any camera object you want here
     #camera = LsstSimMapper().camera
-
 
 
 class testGalSimGalaxies(GalSimGalaxies):
@@ -34,11 +34,9 @@ class testGalSimGalaxies(GalSimGalaxies):
 
     PSF = SNRdocumentPSF()
 
-    #If you want to use the LSST camera, uncomment the line below.
-    #You can similarly assign any camera object you want here
+    # If you want to use the LSST camera, uncomment the line below.
+    # You can similarly assign any camera object you want here
     #camera = LsstSimMapper().camera
-
-
 
 
 class testGalSimAgn(GalSimAgn):
@@ -47,20 +45,19 @@ class testGalSimAgn(GalSimAgn):
     #defined in galSimInterface/galSimUtilities.py
     PSF = SNRdocumentPSF()
 
-    #If you want to use the LSST camera, uncomment the line below.
-    #You can similarly assign any camera object you want here
+    # If you want to use the LSST camera, uncomment the line below.
+    # You can similarly assign any camera object you want here
     #camera = LsstSimMapper().camera
 
 
-
-#select an OpSim pointing
+# select an OpSim pointing
 obsMD = OpSim3_61DBObject()
 obs_metadata = obsMD.getObservationMetaData(88625744, 0.05, makeCircBounds = True)
 
-#grab a database of galaxies (in this case, galaxy bulges)
+# grab a database of galaxies (in this case, galaxy bulges)
 stars = CatalogDBObject.from_objid('allstars')
 
-#now append a bunch of objects with 2D sersic profiles to our output file
+# now append a bunch of objects with 2D sersic profiles to our output file
 stars_galSim = testGalSimStars(stars, obs_metadata=obs_metadata)
 
 catName = 'galSim_compound_example.txt'
@@ -71,14 +68,14 @@ print 'done with stars'
 bulges = CatalogDBObject.from_objid('galaxyBulge')
 bulge_galSim = testGalSimGalaxies(bulges, obs_metadata=obs_metadata)
 
-#This will make sure that the galaxies are drawn to the same images
-#as the stars were.  It copies the GalSimInterpreter from the star
-#catalog.  It also copies the camera.  The PSF in the GalSimInterpreter
-#is updated to reflect the PSF in bluge_galSim
+# This will make sure that the galaxies are drawn to the same images
+# as the stars were.  It copies the GalSimInterpreter from the star
+# catalog.  It also copies the camera.  The PSF in the GalSimInterpreter
+# is updated to reflect the PSF in bluge_galSim
 bulge_galSim.copyGalSimInterpreter(stars_galSim)
 
 bulge_galSim.write_catalog(catName, write_header=False,
-                            write_mode='a')
+                           write_mode='a')
 
 print 'done with bulges'
 

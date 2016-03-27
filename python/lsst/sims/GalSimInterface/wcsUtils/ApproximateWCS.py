@@ -38,6 +38,7 @@ from lsst.sims.coordUtils import raDecFromPixelCoords
 
 __all__ = ["approximateWcs"]
 
+
 def approximateWcs(wcs, bbox, camera=None, detector=None, obs_metadata=None,
                    order=3, nx=20, ny=20, iterations=3,
                    skyTolerance=0.001*afwGeom.arcseconds, pixelTolerance=0.02,
@@ -67,7 +68,7 @@ def approximateWcs(wcs, bbox, camera=None, detector=None, obs_metadata=None,
         crCoord = wcs.getSkyOrigin()
         crPix = wcs.getPixelOrigin()
         cdMat = wcs.getCDMatrix()
-        tanWcs = afwImage.makeWcs(crCoord, crPix, cdMat[0,0], cdMat[0,1], cdMat[1,0], cdMat[1,1])
+        tanWcs = afwImage.makeWcs(crCoord, crPix, cdMat[0, 0], cdMat[0, 1], cdMat[1, 0], cdMat[1, 1])
     else:
         tanWcs = wcs
 
@@ -77,7 +78,7 @@ def approximateWcs(wcs, bbox, camera=None, detector=None, obs_metadata=None,
     refCat = afwTable.SimpleCatalog(refSchema)
 
     sourceSchema = afwTable.SourceTable.makeMinimalSchema()
-    SingleFrameMeasurementTask(schema=sourceSchema) # expand the schema
+    SingleFrameMeasurementTask(schema=sourceSchema)  # expand the schema
     sourceCentroidKey = afwTable.Point2DKey(sourceSchema["slot_Centroid"])
 
     sourceCat = afwTable.SourceCatalog(sourceSchema)
@@ -107,7 +108,7 @@ def approximateWcs(wcs, bbox, camera=None, detector=None, obs_metadata=None,
             matchList.append(afwTable.ReferenceMatch(refObj, source, 0.0))
 
     # The TAN-SIP fitter is fitting x and y separately, so we have to iterate to make it converge
-    for indx in range(iterations) :
+    for indx in range(iterations):
         sipObject = makeCreateWcsWithSip(matchList, tanWcs, order, bbox)
         tanWcs = sipObject.getNewWcs()
     fitWcs = sipObject.getNewWcs()

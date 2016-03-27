@@ -17,15 +17,16 @@ import lsst.utils
 from lsst.sims.utils import arcsecFromRadians
 from lsst.sims.catalogs.measures.instance import InstanceCatalog, cached, is_null
 from lsst.sims.catUtils.mixins import CameraCoords, AstrometryGalaxies, AstrometryStars, \
-                                      EBVmixin
+    EBVmixin
 from lsst.sims.GalSimInterface import GalSimInterpreter, GalSimDetector, GalSimCelestialObject
 from lsst.sims.photUtils import Sed, Bandpass, BandpassDict, \
-                                PhotometricParameters, LSSTdefaults
+    PhotometricParameters, LSSTdefaults
 import lsst.afw.cameraGeom.testUtils as camTestUtils
 import lsst.afw.geom as afwGeom
 from lsst.afw.cameraGeom import PUPIL, PIXELS, FOCAL_PLANE
 
 __all__ = ["GalSimGalaxies", "GalSimAgn", "GalSimStars"]
+
 
 class GalSimBase(InstanceCatalog, CameraCoords):
     """
@@ -104,29 +105,29 @@ class GalSimBase(InstanceCatalog, CameraCoords):
 
     seed = 42
 
-    #This is sort of a hack; it prevents findChipName in coordUtils from dying
-    #if an object lands on multiple science chips.
+    # This is sort of a hack; it prevents findChipName in coordUtils from dying
+    # if an object lands on multiple science chips.
     allow_multiple_chips = True
 
-    #There is no point in writing things to the InstanceCatalog that do not have SEDs and/or
-    #do not land on any detectors
+    # There is no point in writing things to the InstanceCatalog that do not have SEDs and/or
+    # do not land on any detectors
     cannot_be_null = ['sedFilepath', 'fitsFiles']
 
     column_outputs = ['galSimType', 'uniqueId', 'raICRS', 'decICRS',
                       'chipName', 'x_pupil', 'y_pupil', 'sedFilepath',
                       'majorAxis', 'minorAxis', 'sindex', 'halfLightRadius',
-                      'positionAngle','fitsFiles']
+                      'positionAngle', 'fitsFiles']
 
-    transformations = {'raICRS':numpy.degrees,
-                       'decICRS':numpy.degrees,
-                       'x_pupil':arcsecFromRadians,
-                       'y_pupil':arcsecFromRadians,
-                       'halfLightRadius':arcsecFromRadians}
+    transformations = {'raICRS': numpy.degrees,
+                       'decICRS': numpy.degrees,
+                       'x_pupil': arcsecFromRadians,
+                       'y_pupil': arcsecFromRadians,
+                       'halfLightRadius': arcsecFromRadians}
 
-    default_formats = {'S':'%s', 'f':'%.9g', 'i':'%i'}
+    default_formats = {'S': '%s', 'f': '%.9g', 'i': '%i'}
 
-    #This is used as the delimiter because the names of the detectors printed in the fitsFiles
-    #column contain both ':' and ','
+    # This is used as the delimiter because the names of the detectors printed in the fitsFiles
+    # column contain both ':' and ','
     delimiter = '; '
 
     sedDir = lsst.utils.getPackageDir('sims_sed_library')
@@ -142,28 +143,27 @@ class GalSimBase(InstanceCatalog, CameraCoords):
     # If 'None', then all chips are drawn.
     allowed_chips = None
 
-    #This member variable will define a PSF to convolve with the sources.
-    #See the classes PSFbase and DoubleGaussianPSF in
-    #galSimUtilities.py for more information
+    # This member variable will define a PSF to convolve with the sources.
+    # See the classes PSFbase and DoubleGaussianPSF in
+    # galSimUtilities.py for more information
     PSF = None
 
-    #This member variable can store a GalSim noise model instantiation
-    #which will be applied to the FITS images when they are created
+    # This member variable can store a GalSim noise model instantiation
+    # which will be applied to the FITS images when they are created
     noise_and_background = None
 
-    #Stores the gain and readnoise
+    # Stores the gain and readnoise
     photParams = PhotometricParameters()
 
-    #This is just a place holder for the camera object associated with the InstanceCatalog.
-    #If you want to assign a different camera, you can do so immediately after instantiating this class
+    # This is just a place holder for the camera object associated with the InstanceCatalog.
+    # If you want to assign a different camera, you can do so immediately after instantiating this class
     camera = camTestUtils.CameraWrapper().camera
 
-
-    uniqueSeds = {} #a cache for un-normalized SED files, so that we do not waste time on I/O
+    uniqueSeds = {}  # a cache for un-normalized SED files, so that we do not waste time on I/O
 
     hasBeenInitialized = False
 
-    galSimInterpreter = None #the GalSimInterpreter instantiation for this catalog
+    galSimInterpreter = None  # the GalSimInterpreter instantiation for this catalog
 
     totalDrawings = 0
     totalObjects = 0
@@ -186,9 +186,9 @@ class GalSimBase(InstanceCatalog, CameraCoords):
         Maps the name of the SED as stored in the database to the file stored in
         sims_sed_library
         """
-        #copied from the phoSim catalogs
+        # copied from the phoSim catalogs
         return numpy.array([self.specFileMap[k] if self.specFileMap.has_key(k) else None
-                         for k in self.column_by_name('sedFilename')])
+                            for k in self.column_by_name('sedFilename')])
 
     def _calculateGalSimSeds(self):
         """
@@ -205,83 +205,82 @@ class GalSimBase(InstanceCatalog, CameraCoords):
         galacticRv = self.column_by_name('galacticRv')
         magNorm = self.column_by_name('magNorm')
 
-        #for setting magNorm
+        # for setting magNorm
         imsimband = Bandpass()
         imsimband.imsimBandpass()
 
-        outputNames=[]
+        outputNames = []
 
         for (sedName, zz, iAv, iRv, gAv, gRv, norm) in \
-            zip(actualSEDnames, redshift, internalAv, internalRv, galacticAv, galacticRv, magNorm):
+                zip(actualSEDnames, redshift, internalAv, internalRv, galacticAv, galacticRv, magNorm):
 
             if is_null(sedName):
                 sedList.append(None)
             else:
                 if sedName in self.uniqueSeds:
-                    #we have already read in this file; no need to do it again
+                    # we have already read in this file; no need to do it again
                     sed = Sed(wavelen=self.uniqueSeds[sedName].wavelen,
                               flambda=self.uniqueSeds[sedName].flambda,
                               fnu=self.uniqueSeds[sedName].fnu,
                               name=self.uniqueSeds[sedName].name)
                 else:
-                    #load the SED of the object
+                    # load the SED of the object
                     sed = Sed()
                     sedFile = os.path.join(self.sedDir, sedName)
                     sed.readSED_flambda(sedFile)
 
                     flambdaCopy = copy.deepcopy(sed.flambda)
 
-                    #If the SED is zero inside of the bandpass, GalSim raises an error.
-                    #This sets a minimum flux value of 1.0e-30 so that the SED is never technically
-                    #zero inside of the bandpass.
-                    sed.flambda = numpy.array([ff if ff>1.0e-30 else 1.0e-30 for ff in flambdaCopy])
+                    # If the SED is zero inside of the bandpass, GalSim raises an error.
+                    # This sets a minimum flux value of 1.0e-30 so that the SED is never technically
+                    # zero inside of the bandpass.
+                    sed.flambda = numpy.array([ff if ff > 1.0e-30 else 1.0e-30 for ff in flambdaCopy])
                     sed.fnu = None
 
-                    #copy the unnormalized file to uniqueSeds so we don't have to read it in again
+                    # copy the unnormalized file to uniqueSeds so we don't have to read it in again
                     sedCopy = Sed(wavelen=sed.wavelen, flambda=sed.flambda,
                                   fnu=sed.fnu, name=sed.name)
                     self.uniqueSeds[sedName] = sedCopy
 
-                #normalize the SED
-                #Consulting the file sed.py in GalSim/galsim/ it appears that GalSim expects
-                #its SEDs to ultimately be in units of ergs/nm so that, when called, they can
-                #be converted to photons/nm (see the function __call__() and the assignment of
-                #self._rest_photons in the __init__() of galsim's sed.py file).  Thus, we need
-                #to read in our SEDs, normalize them, and then multiply by the exposure time
-                #and the effective area to get from ergs/s/cm^2/nm to ergs/nm.
+                # normalize the SED
+                # Consulting the file sed.py in GalSim/galsim/ it appears that GalSim expects
+                # its SEDs to ultimately be in units of ergs/nm so that, when called, they can
+                # be converted to photons/nm (see the function __call__() and the assignment of
+                # self._rest_photons in the __init__() of galsim's sed.py file).  Thus, we need
+                # to read in our SEDs, normalize them, and then multiply by the exposure time
+                # and the effective area to get from ergs/s/cm^2/nm to ergs/nm.
                 #
-                #The gain parameter should convert between photons and ADU (so: it is the
-                #traditional definition of "gain" -- electrons per ADU -- multiplied by the
-                #quantum efficiency of the detector).  Because we fold the quantum efficiency
-                #of the detector into our total_[u,g,r,i,z,y].dat bandpass files
+                # The gain parameter should convert between photons and ADU (so: it is the
+                # traditional definition of "gain" -- electrons per ADU -- multiplied by the
+                # quantum efficiency of the detector).  Because we fold the quantum efficiency
+                # of the detector into our total_[u,g,r,i,z,y].dat bandpass files
                 #(see the readme in the THROUGHPUTS_DIR/baseline/), we only need to multiply
-                #by the electrons per ADU gain.
+                # by the electrons per ADU gain.
                 #
-                #We will take these parameters from an instantiation of the PhotometricParameters
-                #class (which can be reassigned by defining a daughter class of this class)
+                # We will take these parameters from an instantiation of the PhotometricParameters
+                # class (which can be reassigned by defining a daughter class of this class)
                 #
                 fNorm = sed.calcFluxNorm(norm, imsimband)
                 sed.multiplyFluxNorm(fNorm)
 
-                #apply dust extinction (internal)
+                # apply dust extinction (internal)
                 if iAv != 0.0 and iRv != 0.0:
                     a_int, b_int = sed.setupCCMab()
                     sed.addCCMDust(a_int, b_int, A_v=iAv, R_v=iRv)
 
-                #22 June 2015
-                #apply redshift; there is no need to apply the distance modulus from
-                #sims/photUtils/CosmologyWrapper; magNorm takes that into account
-                #however, magNorm does not take into account cosmological dimming
+                # 22 June 2015
+                # apply redshift; there is no need to apply the distance modulus from
+                # sims/photUtils/CosmologyWrapper; magNorm takes that into account
+                # however, magNorm does not take into account cosmological dimming
                 if zz != 0.0:
                     sed.redshiftSED(zz, dimming=True)
 
-                #apply dust extinction (galactic)
+                # apply dust extinction (galactic)
                 a_int, b_int = sed.setupCCMab()
                 sed.addCCMDust(a_int, b_int, A_v=gAv, R_v=gRv)
                 sedList.append(sed)
 
         return sedList
-
 
     def get_fitsFiles(self):
         """
@@ -302,34 +301,34 @@ class GalSimBase(InstanceCatalog, CameraCoords):
         positionAngle = self.column_by_name('positionAngle')
         sindex = self.column_by_name('sindex')
 
-        #correct the SEDs for redshift, dust, etc.  Return a list of Sed objects as defined in
-        #sims_photUtils/../../Sed.py
+        # correct the SEDs for redshift, dust, etc.  Return a list of Sed objects as defined in
+        # sims_photUtils/../../Sed.py
         sedList = self._calculateGalSimSeds()
 
-        if self.hasBeenInitialized is False and len(objectNames)>0:
-            #This needs to be here in case, instead of writing the whole catalog with write_catalog(),
-            #the user wishes to iterate through the catalog with InstanceCatalog.iter_catalog(),
-            #which will not call write_header()
+        if self.hasBeenInitialized is False and len(objectNames) > 0:
+            # This needs to be here in case, instead of writing the whole catalog with write_catalog(),
+            # the user wishes to iterate through the catalog with InstanceCatalog.iter_catalog(),
+            # which will not call write_header()
             self._initializeGalSimCatalog()
             if not hasattr(self, 'bandpassDict'):
                 raise RuntimeError('ran initializeGalSimCatalog but do not have bandpassDict')
 
         output = []
         for (name, ra, dec, xp, yp, hlr, minor, major, pa, ss, sn) in \
-            zip(objectNames, raICRS, decICRS, xPupil, yPupil, halfLight, \
+            zip(objectNames, raICRS, decICRS, xPupil, yPupil, halfLight,
                 minorAxis, majorAxis, positionAngle, sedList, sindex):
 
             if ss is None or name in self.objectHasBeenDrawn:
-                #do not draw objects that have no SED or have already been drawn
+                # do not draw objects that have no SED or have already been drawn
                 output.append(None)
                 if name in self.objectHasBeenDrawn:
-                    #15 December 2014
-                    #This should probably be an error.  However, something is wrong with
-                    #the SQL on fatboy such that it does return the same objects more than
-                    #once (at least in the case of stars).  Yusra is currently working to fix
-                    #the problem.  Until then, this will just warn you that the same object
-                    #appears twice in your catalog and will refrain from drawing it the second
-                    #time.
+                    # 15 December 2014
+                    # This should probably be an error.  However, something is wrong with
+                    # the SQL on fatboy such that it does return the same objects more than
+                    # once (at least in the case of stars).  Yusra is currently working to fix
+                    # the problem.  Until then, this will just warn you that the same object
+                    # appears twice in your catalog and will refrain from drawing it the second
+                    # time.
                     print 'Trying to draw %s more than once ' % str(name)
 
             else:
@@ -341,16 +340,15 @@ class GalSimBase(InstanceCatalog, CameraCoords):
                     adu = ss.calcADU(self.bandpassDict[bb], self.photParams)
                     flux_dict[bb] = adu*self.photParams.gain
 
-                gsObj = GalSimCelestialObject(self.galsim_type, ss, ra, dec, xp, yp, \
+                gsObj = GalSimCelestialObject(self.galsim_type, ss, ra, dec, xp, yp,
                                               hlr, minor, major, pa, sn, flux_dict)
 
-                #actually draw the object
+                # actually draw the object
                 detectorsString = self.galSimInterpreter.drawObject(gsObj)
 
                 output.append(detectorsString)
 
         return numpy.array(output)
-
 
     def setPSF(self, PSF):
         """
@@ -358,10 +356,9 @@ class GalSimBase(InstanceCatalog, CameraCoords):
 
         @param [in] PSF is an instantiation of a GalSimPSF class.
         """
-        self.PSF=PSF
+        self.PSF = PSF
         if self.galSimInterpreter is not None:
             self.galSimInterpreter.setPSF(PSF=PSF)
-
 
     def copyGalSimInterpreter(self, otherCatalog):
         """
@@ -383,7 +380,6 @@ class GalSimBase(InstanceCatalog, CameraCoords):
         self.bandpassDict = otherCatalog.bandpassDict
         self.galSimInterpreter = otherCatalog.galSimInterpreter
 
-
     def _initializeGalSimInterpreter(self):
         """
         This method creates the GalSimInterpreter (if it is None)
@@ -397,29 +393,29 @@ class GalSimBase(InstanceCatalog, CameraCoords):
 
         if self.galSimInterpreter is None:
 
-            #This list will contain instantiations of the GalSimDetector class
+            # This list will contain instantiations of the GalSimDetector class
             #(see galSimInterpreter.py), which stores detector information in a way
-            #that the GalSimInterpreter will understand
+            # that the GalSimInterpreter will understand
             detectors = []
 
             for dd in self.camera:
                 if self.allowed_chips is None or dd.getName() in self.allowed_chips:
                     cs = dd.makeCameraSys(PUPIL)
-                    centerPupil = self.camera.transform(dd.getCenter(FOCAL_PLANE),cs).getPoint()
+                    centerPupil = self.camera.transform(dd.getCenter(FOCAL_PLANE), cs).getPoint()
                     centerPixel = dd.getCenter(PIXELS).getPoint()
 
                     translationPixel = afwGeom.Point2D(centerPixel.getX()+1, centerPixel.getY()+1)
                     translationPupil = self.camera.transform(
-                                            dd.makeCameraPoint(translationPixel, PIXELS), cs).getPoint()
+                        dd.makeCameraPoint(translationPixel, PIXELS), cs).getPoint()
 
-                    plateScale = numpy.sqrt(numpy.power(translationPupil.getX()-centerPupil.getX(),2)+
-                                            numpy.power(translationPupil.getY()-centerPupil.getY(),2))/numpy.sqrt(2.0)
+                    plateScale = numpy.sqrt(numpy.power(translationPupil.getX()-centerPupil.getX(), 2) +
+                                            numpy.power(translationPupil.getY()-centerPupil.getY(), 2))/numpy.sqrt(2.0)
 
                     plateScale = 3600.0*numpy.degrees(plateScale)
 
-                    #make a detector-custom photParams that copies all of the quantities
-                    #in the catalog photParams, except the platescale, which is
-                    #calculated above
+                    # make a detector-custom photParams that copies all of the quantities
+                    # in the catalog photParams, except the platescale, which is
+                    # calculated above
                     params = PhotometricParameters(exptime=self.photParams.exptime,
                                                    nexp=self.photParams.nexp,
                                                    effarea=self.photParams.effarea,
@@ -428,7 +424,6 @@ class GalSimBase(InstanceCatalog, CameraCoords):
                                                    darkcurrent=self.photParams.darkcurrent,
                                                    othernoise=self.photParams.othernoise,
                                                    platescale=plateScale)
-
 
                     detector = GalSimDetector(dd, self.camera,
                                               obs_metadata=self.obs_metadata, epoch=self.db_obj.epoch,
@@ -439,39 +434,38 @@ class GalSimBase(InstanceCatalog, CameraCoords):
             if not hasattr(self, 'bandpassDict'):
                 if self.noise_and_background is not None:
                     if self.obs_metadata.m5 is None:
-                        raise RuntimeError('WARNING  in GalSimCatalog; you did not specify m5 in your '+
-                                            'obs_metadata. m5 is required in order to add noise to your images')
+                        raise RuntimeError('WARNING  in GalSimCatalog; you did not specify m5 in your ' +
+                                           'obs_metadata. m5 is required in order to add noise to your images')
 
                     for name in self.bandpassNames:
                         if name not in self.obs_metadata.m5:
                             raise RuntimeError('WARNING in GalSimCatalog; your obs_metadata does not have ' +
-                                                 'm5 values for all of your bandpasses \n' +
-                                                 'bandpass has: %s \n' % self.bandpassNames.__repr__() +
-                                                 'm5 has: %s ' % self.obs_metadata.m5.keys().__repr__())
+                                               'm5 values for all of your bandpasses \n' +
+                                               'bandpass has: %s \n' % self.bandpassNames.__repr__() +
+                                               'm5 has: %s ' % self.obs_metadata.m5.keys().__repr__())
 
                     if self.obs_metadata.seeing is None:
-                        raise RuntimeError('WARNING  in GalSimCatalog; you did not specify seeing in your '+
-                                            'obs_metadata.  seeing is required in order to add noise to your images')
+                        raise RuntimeError('WARNING  in GalSimCatalog; you did not specify seeing in your ' +
+                                           'obs_metadata.  seeing is required in order to add noise to your images')
 
                     for name in self.bandpassNames:
                         if name not in self.obs_metadata.seeing:
                             raise RuntimeError('WARNING in GalSimCatalog; your obs_metadata does not have ' +
-                                                 'seeing values for all of your bandpasses \n' +
-                                                 'bandpass has: %s \n' % self.bandpassNames.__repr__() +
-                                                 'seeing has: %s ' % self.obs_metadata.seeing.keys().__repr__())
+                                               'seeing values for all of your bandpasses \n' +
+                                               'bandpass has: %s \n' % self.bandpassNames.__repr__() +
+                                               'seeing has: %s ' % self.obs_metadata.seeing.keys().__repr__())
 
                 self.bandpassDict, hardwareDict = BandpassDict.loadBandpassesFromFiles(bandpassNames=self.bandpassNames,
-                                             filedir=self.bandpassDir,
-                                             bandpassRoot=self.bandpassRoot,
-                                             componentList=self.componentList,
-                                             atmoTransmission=os.path.join(self.bandpassDir, self.atmoTransmissionName))
+                                                                                       filedir=self.bandpassDir,
+                                                                                       bandpassRoot=self.bandpassRoot,
+                                                                                       componentList=self.componentList,
+                                                                                       atmoTransmission=os.path.join(self.bandpassDir, self.atmoTransmissionName))
 
             self.galSimInterpreter = GalSimInterpreter(obs_metadata=self.obs_metadata, epoch=self.db_obj.epoch, detectors=detectors,
                                                        bandpassDict=self.bandpassDict, noiseWrapper=self.noise_and_background,
                                                        seed=self.seed)
 
             self.galSimInterpreter.setPSF(PSF=self.PSF)
-
 
     def write_images(self, nameRoot=None):
         """
@@ -493,6 +487,7 @@ class GalSimBase(InstanceCatalog, CameraCoords):
 
         return namesWritten
 
+
 class GalSimGalaxies(GalSimBase, AstrometryGalaxies, EBVmixin):
     """
     This is a GalSimCatalog class for galaxy components (i.e. objects that are shaped
@@ -505,7 +500,8 @@ class GalSimGalaxies(GalSimBase, AstrometryGalaxies, EBVmixin):
     galsim_type = 'sersic'
     default_columns = [('galacticAv', 0.1, float),
                        ('galacticRv', 3.1, float),
-                       ('galSimType', 'sersic', (str,6))]
+                       ('galSimType', 'sersic', (str, 6))]
+
 
 class GalSimAgn(GalSimBase, AstrometryGalaxies, EBVmixin):
     """
@@ -516,15 +512,16 @@ class GalSimAgn(GalSimBase, AstrometryGalaxies, EBVmixin):
     catalog_type = 'galsim_agn'
     galsim_type = 'pointSource'
     default_columns = [('galacticAv', 0.1, float),
-                      ('galacticRv', 3.1, float),
-                      ('galSimType', 'pointSource', (str,11)),
-                      ('majorAxis', 0.0, float),
-                      ('minorAxis', 0.0, float),
-                      ('sindex', 0.0, float),
-                      ('positionAngle', 0.0, float),
-                      ('halfLightRadius', 0.0, float),
-                      ('internalAv', 0.0, float),
-                      ('internalRv', 0.0, float)]
+                       ('galacticRv', 3.1, float),
+                       ('galSimType', 'pointSource', (str, 11)),
+                       ('majorAxis', 0.0, float),
+                       ('minorAxis', 0.0, float),
+                       ('sindex', 0.0, float),
+                       ('positionAngle', 0.0, float),
+                       ('halfLightRadius', 0.0, float),
+                       ('internalAv', 0.0, float),
+                       ('internalRv', 0.0, float)]
+
 
 class GalSimStars(GalSimBase, AstrometryStars, EBVmixin):
     """
@@ -535,13 +532,13 @@ class GalSimStars(GalSimBase, AstrometryStars, EBVmixin):
     catalog_type = 'galsim_stars'
     galsim_type = 'pointSource'
     default_columns = [('galacticAv', 0.1, float),
-                      ('galacticRv', 3.1, float),
-                      ('galSimType', 'pointSource', (str,11)),
-                      ('internalAv', 0.0, float),
-                      ('internalRv', 0.0, float),
-                      ('redshift', 0.0, float),
-                      ('majorAxis', 0.0, float),
-                      ('minorAxis', 0.0, float),
-                      ('sindex', 0.0, float),
-                      ('positionAngle', 0.0, float),
-                      ('halfLightRadius', 0.0, float)]
+                       ('galacticRv', 3.1, float),
+                       ('galSimType', 'pointSource', (str, 11)),
+                       ('internalAv', 0.0, float),
+                       ('internalRv', 0.0, float),
+                       ('redshift', 0.0, float),
+                       ('majorAxis', 0.0, float),
+                       ('minorAxis', 0.0, float),
+                       ('sindex', 0.0, float),
+                       ('positionAngle', 0.0, float),
+                       ('halfLightRadius', 0.0, float)]

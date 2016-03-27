@@ -13,16 +13,17 @@ from lsst.sims.catalogs.generation.db import fileDBObject
 from lsst.sims.GalSimInterface import GalSimStars, SNRdocumentPSF
 from testUtils import create_text_catalog
 
+
 class placementFileDBObj(fileDBObject):
     idColKey = 'test_id'
     objectTypeId = 88
     tableid = 'test'
     raColName = 'ra'
     decColName = 'dec'
-    #sedFilename
+    # sedFilename
 
-    columns = [('raJ2000','ra*PI()/180.0', numpy.float),
-               ('decJ2000','dec*PI()/180.0', numpy.float),
+    columns = [('raJ2000', 'ra*PI()/180.0', numpy.float),
+               ('decJ2000', 'dec*PI()/180.0', numpy.float),
                ('magNorm', 'mag_norm', numpy.float)]
 
 
@@ -36,7 +37,7 @@ class placementCatalog(GalSimStars):
 
     default_columns = GalSimStars.default_columns
 
-    default_columns += [('sedFilename', 'sed_flat.txt', (str,12)),
+    default_columns += [('sedFilename', 'sed_flat.txt', (str, 12)),
                         ('properMotionRa', 0.0, numpy.float),
                         ('properMotionDec', 0.0, numpy.float),
                         ('radialVelocity', 0.0, numpy.float),
@@ -47,7 +48,7 @@ class placementCatalog(GalSimStars):
 class GalSimPlacementTest(unittest.TestCase):
 
     def setUp(self):
-        self.magNorm=19.0
+        self.magNorm = 19.0
 
     def check_placement(self, imageName, raList, decList, fwhmList,
                         countList, gain,
@@ -90,9 +91,8 @@ class GalSimPlacementTest(unittest.TestCase):
         the expected amount by more than 3 sigma.
         """
 
-
         im = afwImage.ImageF(imageName).getArray()
-        activePixels = numpy.where(im>1.0e-10)
+        activePixels = numpy.where(im > 1.0e-10)
 
         # I know this seems backwards, but the way numpy handles arrays,
         # the first index is the row (i.e. the y coordinate)
@@ -107,7 +107,7 @@ class GalSimPlacementTest(unittest.TestCase):
                                                    epoch=epoch)
 
         for rr, dd, xx, yy, fwhm, cc in \
-        zip(raList, decList, xPixList, yPixList, fwhmList, countList):
+                zip(raList, decList, xPixList, yPixList, fwhmList, countList):
             countSigma = numpy.sqrt(cc/gain)
 
             imNameList = [detector.getName()]*len(imXList)
@@ -120,18 +120,16 @@ class GalSimPlacementTest(unittest.TestCase):
             distanceList = arcsecFromRadians(haversine(raImList, decImList, rr, dd))
 
             fluxArray = numpy.array(
-                                  [im[imYList[ix]][imXList[ix]] \
-                                   for ix in range(len(distanceList)) \
-                                   if distanceList[ix]<2.0*fwhm]
-                                  )
+                [im[imYList[ix]][imXList[ix]]
+                 for ix in range(len(distanceList))
+                 if distanceList[ix] < 2.0*fwhm]
+            )
 
             totalFlux = fluxArray.sum()
             msg = 'totalFlux %e should be %e diff/sigma %e' \
-            % (totalFlux, cc, numpy.abs(totalFlux-cc)/countSigma)
+                % (totalFlux, cc, numpy.abs(totalFlux-cc)/countSigma)
 
             self.assertLess(numpy.abs(totalFlux-cc), 3.0*countSigma, msg=msg)
-
-
 
     def testObjectPlacement(self):
         """
@@ -152,15 +150,15 @@ class GalSimPlacementTest(unittest.TestCase):
 
         controlSed = Sed()
         controlSed.readSED_flambda(
-                                   os.path.join(getPackageDir('sims_sed_library'),
-                                               'flatSED','sed_flat.txt.gz')
-                                   )
+            os.path.join(getPackageDir('sims_sed_library'),
+                         'flatSED', 'sed_flat.txt.gz')
+        )
 
         uBandpass = Bandpass()
         uBandpass.readThroughput(
-                                 os.path.join(getPackageDir('throughputs'),
-                                              'baseline','total_u.dat')
-                                )
+            os.path.join(getPackageDir('throughputs'),
+                         'baseline', 'total_u.dat')
+        )
 
         controlBandpass = Bandpass()
         controlBandpass.imsimBandpass()
@@ -180,8 +178,7 @@ class GalSimPlacementTest(unittest.TestCase):
         actualCounts = None
 
         for pointingRA, pointingDec, rotSkyPos, fwhm in \
-        zip(pointingRaList, pointingDecList, rotSkyPosList, fwhmList):
-
+                zip(pointingRaList, pointingDecList, rotSkyPosList, fwhmList):
 
             obs = ObservationMetaData(pointingRA=pointingRA,
                                       pointingDec=pointingDec,
@@ -218,13 +215,13 @@ class GalSimPlacementTest(unittest.TestCase):
             objRaList = numpy.array(objRaList)
             objDecList = numpy.array(objDecList)
 
-            self.assertGreater(len(objRaList), 0) # make sure we aren't testing
-                                                  # an empty catalog/image
+            self.assertGreater(len(objRaList), 0)  # make sure we aren't testing
+            # an empty catalog/image
 
             self.check_placement(imageName, objRaList, objDecList,
-                                [fwhm]*len(objRaList),
-                                numpy.array([actualCounts]*len(objRaList)),
-                                cat.photParams.gain, detector, camera, obs, epoch=2000.0)
+                                 [fwhm]*len(objRaList),
+                                 numpy.array([actualCounts]*len(objRaList)),
+                                 cat.photParams.gain, detector, camera, obs, epoch=2000.0)
 
             if os.path.exists(dbFileName):
                 os.unlink(dbFileName)
@@ -240,6 +237,7 @@ def suite():
     suites += unittest.makeSuite(GalSimPlacementTest)
 
     return unittest.TestSuite(suites)
+
 
 def run(shouldExit = False):
     utilsTests.run(suite(), shouldExit)

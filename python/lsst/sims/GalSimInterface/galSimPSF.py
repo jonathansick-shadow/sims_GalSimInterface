@@ -6,7 +6,8 @@ galsim into the CatSim interface
 import numpy
 import galsim
 
-__all__ = ["PSFbase", "DoubleGaussianPSF", "SNRdocumentPSF",]
+__all__ = ["PSFbase", "DoubleGaussianPSF", "SNRdocumentPSF", ]
+
 
 class PSFbase(object):
     """
@@ -40,7 +41,8 @@ class PSFbase(object):
         @param [in] yPupil the y coordinate on the pupil in arc seconds
         """
 
-        raise NotImplementedError("There is not _getPSF for PSFbase; define a daughter class and define your own")
+        raise NotImplementedError(
+            "There is not _getPSF for PSFbase; define a daughter class and define your own")
 
     def applyPSF(self, xPupil=None, yPupil=None, obj=None, **kwargs):
         """
@@ -62,17 +64,18 @@ class PSFbase(object):
         to convolve the PSF (optional)
         """
 
-        #use the user-defined _getPSF method to calculate the PSF at these specific
-        #coordinates and (optionally) wavelength
+        # use the user-defined _getPSF method to calculate the PSF at these specific
+        # coordinates and (optionally) wavelength
         psf = self._getPSF(xPupil=xPupil, yPupil=yPupil, **kwargs)
 
         if obj is not None:
-            #if we are dealing with an extended object, convolve it with the psf
+            # if we are dealing with an extended object, convolve it with the psf
             obj = galsim.Convolve(obj, psf)
             return obj
         else:
-            #if there is no object (i.e. if this is a point source), just return the PSF
+            # if there is no object (i.e. if this is a point source), just return the PSF
             return psf
+
 
 class DoubleGaussianPSF(PSFbase):
     """
@@ -126,7 +129,6 @@ class DoubleGaussianPSF(PSFbase):
         return self._cached_psf
 
 
-
 class SNRdocumentPSF(DoubleGaussianPSF):
     """
     This is an example implementation of a wavelength- and position-independent
@@ -149,9 +151,9 @@ class SNRdocumentPSF(DoubleGaussianPSF):
         whenever _getPSF is called in this class.
         """
 
-        #the expression below is derived by solving equation (30) of the signal-to-noise
+        # the expression below is derived by solving equation (30) of the signal-to-noise
         #document (www.astro.washington.edu/uses/ivezic/Astr511/LSST_SNRdoc.pdf)
-        #for r at half the maximum of the PSF
+        # for r at half the maximum of the PSF
         alpha = fwhm/2.3835
 
         gaussian1 = galsim.Gaussian(sigma=alpha)

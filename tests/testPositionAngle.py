@@ -11,7 +11,8 @@ from lsst.sims.coordUtils import _raDecFromPixelCoords
 
 from lsst.sims.coordUtils.utils import ReturnCamera
 
-from  testUtils import create_text_catalog
+from testUtils import create_text_catalog
+
 
 class paFileDBObj(fileDBObject):
     idColKey = 'test_id'
@@ -19,14 +20,13 @@ class paFileDBObj(fileDBObject):
     tableid = 'test'
     raColName = 'ra'
     decColName = 'dec'
-    #sedFilename
+    # sedFilename
 
-    columns = [('raJ2000','ra*PI()/180.0', numpy.float),
-               ('decJ2000','dec*PI()/180.0', numpy.float),
+    columns = [('raJ2000', 'ra*PI()/180.0', numpy.float),
+               ('decJ2000', 'dec*PI()/180.0', numpy.float),
                ('halfLightRadius', 'hlr*PI()/648000.0', numpy.float),
                ('magNorm', 'mag_norm', numpy.float),
                ('positionAngle', 'pa*PI()/180.0', numpy.float)]
-
 
 
 class paCat(GalSimGalaxies):
@@ -36,7 +36,7 @@ class paCat(GalSimGalaxies):
                        ('magNorm', 21.0, float),
                        ('galacticAv', 0.1, float),
                        ('galacticRv', 3.1, float),
-                       ('galSimType', 'sersic', (str,11)),
+                       ('galSimType', 'sersic', (str, 11)),
                        ('internalAv', 0.1, float),
                        ('internalRv', 3.1, float),
                        ('redshift', 0.0, float),
@@ -45,11 +45,9 @@ class paCat(GalSimGalaxies):
                        ('sindex', 4.0, float)]
 
 
-
 class GalSimPositionAngleTest(unittest.TestCase):
 
-
-    def get_position_angle(self, imageName, afwCamera, afwDetector, \
+    def get_position_angle(self, imageName, afwCamera, afwDetector,
                            obs_metadata, epoch):
         """
         Read in a FITS image containing one extended object.
@@ -79,7 +77,7 @@ class GalSimPositionAngleTest(unittest.TestCase):
         """
 
         im = afwImage.ImageF(imageName).getArray()
-        activePixels = numpy.where(im>1.0e-10)
+        activePixels = numpy.where(im > 1.0e-10)
         self.assertGreater(len(activePixels), 0)
         xPixList = activePixels[1]
         yPixList = activePixels[0]
@@ -95,11 +93,11 @@ class GalSimPositionAngleTest(unittest.TestCase):
 
         xCenterP1 = xCenterPix+1
         yCenterP1 = yCenterPix+1
-        raCenterP1,decCenterP1 = _raDecFromPixelCoords(xCenterP1, yCenterP1,
-                                                       [afwDetector.getName()],
-                                                       camera=afwCamera,
-                                                       obs_metadata=obs_metadata,
-                                                       epoch=epoch)
+        raCenterP1, decCenterP1 = _raDecFromPixelCoords(xCenterP1, yCenterP1,
+                                                        [afwDetector.getName()],
+                                                        camera=afwCamera,
+                                                        obs_metadata=obs_metadata,
+                                                        epoch=epoch)
 
         # find the angle between the (1,1) vector in pixel space and the
         # north axis of the image
@@ -117,16 +115,16 @@ class GalSimPositionAngleTest(unittest.TestCase):
         # of flux on the image
         maxPixel = numpy.array([im.argmax()%im.shape[1], im.argmax()/im.shape[1]])
 
-        xx = numpy.array([im[iy][ix]*numpy.power(ix-maxPixel[0],2) \
-                         for ix, iy in zip(xPixList, yPixList)]).sum()
-
-        xy = numpy.array([im[iy][ix]*(ix-maxPixel[0])*(iy-maxPixel[1]) \
+        xx = numpy.array([im[iy][ix]*numpy.power(ix-maxPixel[0], 2)
                           for ix, iy in zip(xPixList, yPixList)]).sum()
 
-        yy = numpy.array([im[iy][ix]*(iy-maxPixel[1])*(iy-maxPixel[1]) \
+        xy = numpy.array([im[iy][ix]*(ix-maxPixel[0])*(iy-maxPixel[1])
                           for ix, iy in zip(xPixList, yPixList)]).sum()
 
-        covar = numpy.array([[xx, xy],[xy, yy]])
+        yy = numpy.array([im[iy][ix]*(iy-maxPixel[1])*(iy-maxPixel[1])
+                          for ix, iy in zip(xPixList, yPixList)]).sum()
+
+        covar = numpy.array([[xx, xy], [xy, yy]])
 
         # find the eigen vectors of this covarinace matrix;
         # treat the one with the largest eigen value as the
@@ -134,10 +132,9 @@ class GalSimPositionAngleTest(unittest.TestCase):
         eigenVals, eigenVecs = numpy.linalg.eig(covar)
 
         iMax = eigenVals.argmax()
-        majorAxis = eigenVecs[:,iMax]
+        majorAxis = eigenVecs[:, iMax]
 
         majorAxis = majorAxis/numpy.sqrt(majorAxis[0]*majorAxis[0]+majorAxis[1]*majorAxis[1])
-
 
         # return the angle between the north axis of the image
         # and the semi-major axis of the object
@@ -146,7 +143,6 @@ class GalSimPositionAngleTest(unittest.TestCase):
         theta = numpy.arctan2(sinTheta, cosTheta)
 
         return numpy.degrees(theta)
-
 
     def testPositionAngle(self):
         """
@@ -181,7 +177,6 @@ class GalSimPositionAngleTest(unittest.TestCase):
                                           boundLength = 4.0,
                                           rotSkyPos = rotSkyPos,
                                           mjd = 49250.0)
-
 
                 create_text_catalog(obs, dbFileName,
                                     numpy.random.random_sample(1)*20.0-10.0,
@@ -218,15 +213,13 @@ class GalSimPositionAngleTest(unittest.TestCase):
                     os.unlink(imageName)
 
 
-
-
-
 def suite():
     utilsTests.init()
     suites = []
     suites += unittest.makeSuite(GalSimPositionAngleTest)
 
     return unittest.TestSuite(suites)
+
 
 def run(shouldExit = False):
     utilsTests.run(suite(), shouldExit)

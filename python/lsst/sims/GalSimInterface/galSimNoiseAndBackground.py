@@ -6,9 +6,10 @@ galsim into the CatSim interface
 import numpy
 import galsim
 from lsst.sims.photUtils import calcSkyCountsPerPixelForM5, PhotometricParameters, \
-                                LSSTdefaults
+    LSSTdefaults
 
 __all__ = ["ExampleCCDNoise"]
+
 
 class NoiseAndBackgroundBase(object):
     """
@@ -45,7 +46,6 @@ class NoiseAndBackgroundBase(object):
         else:
             self.randomNumbers = galsim.UniformDeviate(seed)
 
-
     def getNoiseModel(self, skyLevel=0.0, photParams=None):
         """
         This method returns the noise model implemented for this wrapper
@@ -70,7 +70,6 @@ class NoiseAndBackgroundBase(object):
         """
 
         raise NotImplementedError("There is no noise model for NoiseAndBackgroundBase")
-
 
     def addNoiseAndBackground(self, image, bandpass=None, m5=None,
                               FWHMeff=None,
@@ -97,19 +96,18 @@ class NoiseAndBackgroundBase(object):
         @param [out] the input image with the background and noise model added to it.
         """
 
-
-        #calculate the sky background to be added to each pixel
+        # calculate the sky background to be added to each pixel
         skyCounts = calcSkyCountsPerPixelForM5(m5, bandpass, FWHMeff=FWHMeff, photParams=photParams)
 
         image = image.copy()
 
         if self.addBackground:
             image += skyCounts
-            skyLevel = 0.0 #if we are adding the skyCounts to the image,there is no need
-                           #to pass a skyLevel parameter to the noise model.  skyLevel is
-                           #just used to calculate the level of Poisson noise.  If the
-                           #sky background is included in the image, the Poisson noise
-                           #will be calculated from the actual image brightness.
+            skyLevel = 0.0  # if we are adding the skyCounts to the image,there is no need
+            # to pass a skyLevel parameter to the noise model.  skyLevel is
+            # just used to calculate the level of Poisson noise.  If the
+            # sky background is included in the image, the Poisson noise
+            # will be calculated from the actual image brightness.
         else:
             skyLevel = skyCounts*photParams.gain
 
@@ -130,7 +128,6 @@ class ExampleCCDNoise(NoiseAndBackgroundBase):
     """
 
     def getNoiseModel(self, skyLevel=0.0, photParams=None):
-
         """
         This method returns the noise model implemented for this wrapper
         class.
